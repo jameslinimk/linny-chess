@@ -1,8 +1,11 @@
 <script lang="ts">
-	import { get_attribute_infos } from "linnychess"
 	import { onMount } from "svelte"
-	onMount(() => {
-		console.log(get_attribute_infos())
+	import init, { get_attribute_infos } from "../../../rust/pkg/chessv2_rust.js"
+
+	onMount(async () => {
+		await init()
+		const infos = get_attribute_infos()
+		console.log(infos)
 	})
 </script>
 
