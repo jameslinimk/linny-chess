@@ -2,7 +2,7 @@ use bit_vec::BitVec;
 use serde::{Deserialize, Serialize};
 
 use crate::attributes::main::{
-    dirs, first_move_option, InfoOption, OptionType, OptionValue, PieceAttributeTrait,
+    bw, first_move_option, InfoOption, MoveData, OptionType, OptionValue, PieceAttributeTrait,
     PieceTraitInfo,
 };
 use crate::board::Board;
@@ -18,7 +18,7 @@ pub(crate) struct Jumping {
     pub(crate) first_move_only: bool,
 }
 impl PieceAttributeTrait for Jumping {
-    fn moves(&self, board: &Board, piece: &Piece, moves: &mut BitVec) {
+    fn moves(&self, board: &Board, piece: &Piece, moves: &mut Vec<MoveData>) {
         if self.first_move_only
             && board.first_moves[piece.color]
                 .get(board.loc_as_bit(&piece.loc))
@@ -27,7 +27,7 @@ impl PieceAttributeTrait for Jumping {
             return;
         }
 
-        let directions = dirs(&self.directions, &self.black_directions, piece.color);
+        let directions = bw(&self.directions, &self.black_directions, piece.color);
         for dir in directions {
             let loc = &(piece.loc.as_iLoc() + *dir).try_as_loc();
             if let Some(loc) = loc {
@@ -35,21 +35,26 @@ impl PieceAttributeTrait for Jumping {
                     continue;
                 }
 
-                let index = board.loc_as_bit(loc);
                 if !self.capture && board.check_loc(loc).is_some() {
                     continue;
                 } else {
                     let occupied = board.check_loc(loc);
                     if let Some(color) = occupied {
                         if color != piece.color {
-                            moves.set(index, true);
+                            moves.push(MoveData {
+                                to: *loc,
+                                capture: Some(*loc),
+                            });
                         }
                         continue;
                     }
                 }
 
                 if !self.capture_only {
-                    moves.set(index, true);
+                    moves.push(MoveData {
+                        to: *loc,
+                        capture: None,
+                    });
                 }
             }
         }
@@ -65,7 +70,7 @@ impl PieceAttributeTrait for Jumping {
             return;
         }
 
-        let directions = dirs(&self.directions, &self.black_directions, piece.color);
+        let directions = bw(&self.directions, &self.black_directions, piece.color);
         for dir in directions {
             let loc = &(piece.loc.as_iLoc() + *dir).try_as_loc();
             if let Some(loc) = loc {

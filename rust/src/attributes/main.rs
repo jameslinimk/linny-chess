@@ -1,5 +1,3 @@
-use std::slice::Iter;
-
 use bit_vec::BitVec;
 use enum_dispatch::enum_dispatch;
 use serde::{Deserialize, Serialize};
@@ -9,7 +7,7 @@ use crate::attributes::jumping::Jumping;
 use crate::attributes::sliding::Sliding;
 use crate::board::Board;
 use crate::piece::{Color, ColorType, Piece, PieceType};
-use crate::util::ILoc;
+use crate::util::{ILoc, Loc};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub(crate) enum OptionType {
@@ -87,9 +85,15 @@ pub(crate) fn first_move_option() -> InfoOption {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct MoveData {
+    pub(crate) to: Loc,
+    pub(crate) capture: Option<Loc>,
+}
+
 #[enum_dispatch]
 pub(crate) trait PieceAttributeTrait {
-    fn moves(&self, board: &Board, piece: &Piece, moves: &mut BitVec);
+    fn moves(&self, board: &Board, piece: &Piece, moves: &mut Vec<MoveData>);
     fn attacks(&self, board: &Board, piece: &Piece, attacks: &mut BitVec);
     fn info(&self) -> PieceTraitInfo;
     fn set_option(&mut self, name: &str, value: &Option<OptionValue>);
@@ -112,14 +116,11 @@ impl PieceAttribute {
     }
 }
 
-pub(crate) fn dirs<'a>(
-    white: &'a [ILoc],
-    black: &'a Option<Vec<ILoc>>,
-    color: ColorType,
-) -> Iter<'a, ILoc> {
+/// Returns the black or white version of a piece attribute depending on the color of the piece.
+pub(crate) fn bw<'a, T>(white: &'a T, black: &'a Option<T>, color: ColorType) -> &'a T {
     if let Some(dirs) = black && color == Color::BLACK {
-        dirs.iter()
+        dirs
     } else {
-        white.iter()
+        white
     }
 }

@@ -3,7 +3,7 @@ use rustc_hash::FxHashMap;
 
 use crate::attributes::enpassant::EnPassant;
 use crate::attributes::jumping::Jumping;
-use crate::attributes::main::PieceAttributeTrait;
+use crate::attributes::main::{MoveData, PieceAttributeTrait};
 use crate::attributes::sliding::Sliding;
 use crate::board::{Board, PieceInfo};
 use crate::hashmap;
@@ -52,9 +52,9 @@ impl Piece {
         &board.pieces[&self.info_index]
     }
 
-    pub(crate) fn moves(&self, board: &Board) -> BitVec {
+    pub(crate) fn moves(&self, board: &Board) -> Vec<MoveData> {
         let info = self.info(board);
-        let mut moves = BitVec::from_elem(board.width * board.height, false);
+        let mut moves = vec![];
         for attribute in info.attributes.iter() {
             attribute.moves(board, self, &mut moves);
         }

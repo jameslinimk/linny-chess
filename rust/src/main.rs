@@ -4,8 +4,9 @@
 use bit_vec::BitVec;
 use wasm_bindgen::prelude::wasm_bindgen;
 
-use crate::attributes::main::{PieceAttribute, PieceAttributeTrait};
+use crate::attributes::main::{MoveData, PieceAttribute, PieceAttributeTrait};
 use crate::board::Board;
+use crate::piece::{Color, Piece};
 use crate::util::Loc;
 
 mod attributes;
@@ -30,11 +31,22 @@ fn main() {
     let mut board = Board::new(8, 8);
     board.load_fen(Board::DEFAULT_FEN);
 
+    board.raw_move(
+        &Piece {
+            color: Color::WHITE,
+            loc: Loc(6, 6),
+            info_index: 0,
+        },
+        &MoveData {
+            to: Loc(6, 4),
+            capture: Some(Loc(6, 1)),
+        },
+    );
+
     let test_piece = board.get(&Loc(6, 1));
     if let Some(piece) = test_piece {
         let moves = piece.moves(&board);
-        let moves = bit_vec_to_list(&moves, &board);
-        board.print(Some(&moves));
+        board.print(Some(&moves.iter().map(|m| m.to).collect()));
     }
 
     println!("{}", board.hash());
@@ -46,6 +58,7 @@ pub(crate) fn game() -> &'static mut Board {
 }
 
 #[wasm_bindgen]
+/// Sets the global game variable to a new board with the given fen, or the default fen if None is given.
 pub fn set_game(fen: Option<String>) {
     unsafe {
         GAME = Some(Board::new(8, 8));
@@ -58,11 +71,13 @@ pub fn set_game(fen: Option<String>) {
 }
 
 #[wasm_bindgen]
+/// Checks if a game has been set.
 pub fn game_exists() -> bool {
     unsafe { GAME.is_some() }
 }
 
 #[wasm_bindgen]
+/// Returns the current fen of the game.
 pub fn get_fen() -> Option<String> {
     unsafe { GAME.as_ref().map(|game| game.to_fen()) }
 }

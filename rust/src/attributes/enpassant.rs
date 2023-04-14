@@ -2,7 +2,7 @@ use bit_vec::BitVec;
 use serde::{Deserialize, Serialize};
 
 use crate::attributes::main::{
-    InfoOption, OptionType, OptionValue, PieceAttributeTrait, PieceTraitInfo,
+    bw, InfoOption, MoveData, OptionType, OptionValue, PieceAttributeTrait, PieceTraitInfo,
 };
 use crate::board::Board;
 use crate::piece::{Piece, PieceType};
@@ -17,8 +17,9 @@ pub(crate) struct EnPassant {
     pub(crate) piece: PieceType,
 }
 impl PieceAttributeTrait for EnPassant {
-    fn moves(&self, board: &Board, piece: &Piece, moves: &mut BitVec) {
-        for offset in self.offsets.iter() {
+    fn moves(&self, board: &Board, piece: &Piece, moves: &mut Vec<MoveData>) {
+        let offsets = bw(&self.offsets, &self.black_offsets, piece.color);
+        for offset in offsets.iter() {
             let loc = (piece.loc.as_iLoc() + *offset).try_as_loc();
             if let Some(loc) = loc {
                 if !board.valid_loc(&loc) {
@@ -28,8 +29,18 @@ impl PieceAttributeTrait for EnPassant {
                 let occupied = board.check_loc(&loc);
                 if let Some(color) = occupied {
                     if color != piece.color {
-                        let index = board.loc_as_bit(&loc);
-                        moves.set(index, true);
+                        let capture_offset = bw(
+                            &self.capture_offset,
+                            &self.black_capture_offset,
+                            piece.color,
+                        );
+                        let to = (loc.as_iLoc() + *capture_offset).try_as_loc();
+                        if let Some(to) = to {
+                            moves.push(MoveData {
+                                to,
+                                capture: Some(loc),
+                            });
+                        }
                     }
                 }
             }

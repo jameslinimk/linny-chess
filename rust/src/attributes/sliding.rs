@@ -2,7 +2,7 @@ use bit_vec::BitVec;
 use serde::{Deserialize, Serialize};
 
 use crate::attributes::main::{
-    dirs, first_move_option, InfoOption, OptionType, OptionValue, PieceAttributeTrait,
+    bw, first_move_option, InfoOption, MoveData, OptionType, OptionValue, PieceAttributeTrait,
     PieceTraitInfo,
 };
 use crate::board::Board;
@@ -17,8 +17,8 @@ pub(crate) struct Sliding {
     pub(crate) first_move_only: bool,
 }
 impl PieceAttributeTrait for Sliding {
-    fn moves(&self, board: &Board, piece: &Piece, moves: &mut BitVec) {
-        let directions = dirs(&self.directions, &self.black_directions, piece.color);
+    fn moves(&self, board: &Board, piece: &Piece, moves: &mut Vec<MoveData>) {
+        let directions = bw(&self.directions, &self.black_directions, piece.color);
         for dir in directions {
             let mut try_loc = (piece.loc.as_iLoc() + *dir).try_as_loc();
             while let Some(loc) = try_loc {
@@ -26,20 +26,25 @@ impl PieceAttributeTrait for Sliding {
                     break;
                 }
 
-                let index = board.loc_as_bit(&loc);
                 if !self.capture && board.check_loc(&loc).is_some() {
                     break;
                 } else {
                     let occupied = board.check_loc(&loc);
                     if let Some(color) = occupied {
                         if color != piece.color {
-                            moves.set(index, true);
+                            moves.push(MoveData {
+                                to: loc,
+                                capture: Some(loc),
+                            });
                         }
                         break;
                     }
                 }
 
-                moves.set(index, true);
+                moves.push(MoveData {
+                    to: loc,
+                    capture: None,
+                });
                 try_loc = (loc.as_iLoc() + *dir).try_as_loc();
             }
         }
@@ -50,7 +55,7 @@ impl PieceAttributeTrait for Sliding {
             return;
         }
 
-        let directions = dirs(&self.directions, &self.black_directions, piece.color);
+        let directions = bw(&self.directions, &self.black_directions, piece.color);
         for dir in directions {
             let mut try_loc = (piece.loc.as_iLoc() + *dir).try_as_loc();
             while let Some(loc) = try_loc {

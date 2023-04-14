@@ -2,6 +2,7 @@ use colored::Colorize;
 use ordinal::Ordinal;
 use serde::{Deserialize, Serialize};
 
+use crate::attributes::main::MoveData;
 use crate::board::Board;
 use crate::piece::{Color, ColorType, DefaultPiece, Piece};
 use crate::util::Loc;
@@ -223,21 +224,29 @@ impl Board {
             .set(index, true);
     }
 
-    pub(crate) fn raw_move(&mut self, from: &Loc, to: &Loc) {
-        let from_index = self.loc_as_bit(from);
-        let to_index = self.loc_as_bit(to);
+    pub(crate) fn raw_move(&mut self, piece: &Piece, move_data: &MoveData) {
+        let from = self.loc_as_bit(&piece.loc);
+        let to = self.loc_as_bit(&move_data.to);
 
-        for (color, pieces) in self.piece_locations.iter_mut().enumerate() {
-            self.general_locations[color].set(from_index, false);
-            self.general_locations[color].set(to_index, true);
+        self.general_locations[piece.color].set(from, false);
+        self.general_locations[piece.color].set(to, true);
 
-            for (_, map) in pieces.iter_mut() {
-                if map.get(from_index).contains(&true) {
-                    map.set(from_index, false);
-                    map.set(to_index, true);
-                    self.first_moves[color].set(from_index, true);
-                }
-            }
+        if let Some(capture) = move_data.capture {
+            let capture_index = self.loc_as_bit(&capture);
+            let piece = self.get(&capture).unwrap();
+
+            self.general_locations[piece.color].set(capture_index, false);
+            self.piece_locations[piece.color]
+                .get_mut(&piece.info_index)
+                .unwrap()
+                .set(capture_index, false);
         }
+
+        let piece_locations = self.piece_locations[piece.color]
+            .get_mut(&piece.info_index)
+            .unwrap();
+
+        piece_locations.set(from, false);
+        piece_locations.set(to, true);
     }
 }
