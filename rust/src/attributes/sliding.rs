@@ -33,6 +33,8 @@ impl PieceAttributeTrait for Sliding {
                     if let Some(color) = occupied {
                         if color != piece.color {
                             moves.push(MoveData {
+                                castle: None,
+                                piece: *piece,
                                 to: loc,
                                 capture: Some(loc),
                             });
@@ -42,6 +44,8 @@ impl PieceAttributeTrait for Sliding {
                 }
 
                 moves.push(MoveData {
+                    castle: None,
+                    piece: *piece,
                     to: loc,
                     capture: None,
                 });

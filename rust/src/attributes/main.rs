@@ -89,6 +89,8 @@ pub(crate) fn first_move_option() -> InfoOption {
 pub(crate) struct MoveData {
     pub(crate) to: Loc,
     pub(crate) capture: Option<Loc>,
+    pub(crate) castle: Option<(Loc, Loc)>,
+    pub(crate) piece: Piece,
 }
 
 #[enum_dispatch]

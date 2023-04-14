@@ -17,6 +17,19 @@ impl Color {
 }
 pub(crate) type ColorType = usize;
 
+pub(crate) trait ColorTrait {
+    fn other(&self) -> ColorType;
+}
+impl ColorTrait for ColorType {
+    fn other(&self) -> ColorType {
+        match *self {
+            Color::WHITE => Color::BLACK,
+            Color::BLACK => Color::WHITE,
+            _ => panic!("Invalid color"),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct DefaultPiece;
 impl DefaultPiece {

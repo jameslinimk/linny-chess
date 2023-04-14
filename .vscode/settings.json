@@ -1,12 +1,16 @@
 {
 	"cSpell.words": [
 		"bindgen",
+		"bitlength",
 		"bitvec",
+		"cpgn",
 		"enpassant",
 		"Hasher",
 		"iloc",
 		"Linny",
 		"linnychess",
-		"rustc"
+		"rnbqkbnr",
+		"rustc",
+		"truecolor"
 	]
 }

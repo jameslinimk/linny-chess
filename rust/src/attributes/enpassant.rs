@@ -37,6 +37,8 @@ impl PieceAttributeTrait for EnPassant {
                         let to = (loc.as_iLoc() + *capture_offset).try_as_loc();
                         if let Some(to) = to {
                             moves.push(MoveData {
+                                castle: None,
+                                piece: *piece,
                                 to,
                                 capture: Some(loc),
                             });

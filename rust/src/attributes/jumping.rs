@@ -42,6 +42,8 @@ impl PieceAttributeTrait for Jumping {
                     if let Some(color) = occupied {
                         if color != piece.color {
                             moves.push(MoveData {
+                                castle: None,
+                                piece: *piece,
                                 to: *loc,
                                 capture: Some(*loc),
                             });
@@ -52,6 +54,8 @@ impl PieceAttributeTrait for Jumping {
 
                 if !self.capture_only {
                     moves.push(MoveData {
+                        castle: None,
+                        piece: *piece,
                         to: *loc,
                         capture: None,
                     });

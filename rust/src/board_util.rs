@@ -2,7 +2,6 @@ use colored::Colorize;
 use ordinal::Ordinal;
 use serde::{Deserialize, Serialize};
 
-use crate::attributes::main::MoveData;
 use crate::board::Board;
 use crate::piece::{Color, ColorType, DefaultPiece, Piece};
 use crate::util::Loc;
@@ -40,8 +39,12 @@ impl Board {
         loc.0 < self.width && loc.1 < self.height
     }
 
-    pub(crate) fn full_moves(&self) -> u16 {
-        self.half_moves / 2
+    pub(crate) fn half_moves(&self) -> usize {
+        self.move_history.len()
+    }
+
+    pub(crate) fn full_moves(&self) -> usize {
+        self.half_moves() / 2
     }
 
     /// Check and see if a location is occupied by a piece, and if so, return the color of the piece
@@ -86,7 +89,7 @@ impl Board {
             (if self.turn == 0 { "white" } else { "black" })
                 .bold()
                 .white(),
-            Ordinal(self.half_moves).to_string().bold().white(),
+            Ordinal(self.half_moves()).to_string().bold().white(),
         );
         println!(
             "\n{}",
@@ -204,12 +207,12 @@ impl Board {
         todo!()
     }
     pub(crate) fn to_cpgn(&self, metadata: CpgnMetadata) -> Cpgn {
-        let mut moves = Vec::with_capacity(self.half_moves as usize);
+        let mut moves = Vec::with_capacity(self.half_moves());
         for mov in self.move_history.iter() {
             moves.push(format!(
                 "{}{}",
-                mov.from.as_notation(),
-                mov.to().as_notation()
+                mov.piece.loc.as_notation(),
+                mov.to.as_notation()
             ));
         }
         Cpgn { metadata, moves }
@@ -222,31 +225,5 @@ impl Board {
             .get_mut(&piece.info_index)
             .unwrap()
             .set(index, true);
-    }
-
-    pub(crate) fn raw_move(&mut self, piece: &Piece, move_data: &MoveData) {
-        let from = self.loc_as_bit(&piece.loc);
-        let to = self.loc_as_bit(&move_data.to);
-
-        self.general_locations[piece.color].set(from, false);
-        self.general_locations[piece.color].set(to, true);
-
-        if let Some(capture) = move_data.capture {
-            let capture_index = self.loc_as_bit(&capture);
-            let piece = self.get(&capture).unwrap();
-
-            self.general_locations[piece.color].set(capture_index, false);
-            self.piece_locations[piece.color]
-                .get_mut(&piece.info_index)
-                .unwrap()
-                .set(capture_index, false);
-        }
-
-        let piece_locations = self.piece_locations[piece.color]
-            .get_mut(&piece.info_index)
-            .unwrap();
-
-        piece_locations.set(from, false);
-        piece_locations.set(to, true);
     }
 }

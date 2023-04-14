@@ -31,17 +31,16 @@ fn main() {
     let mut board = Board::new(8, 8);
     board.load_fen(Board::DEFAULT_FEN);
 
-    board.raw_move(
-        &Piece {
+    board.raw_move(&MoveData {
+        castle: None,
+        piece: Piece {
             color: Color::WHITE,
             loc: Loc(6, 6),
             info_index: 0,
         },
-        &MoveData {
-            to: Loc(6, 4),
-            capture: Some(Loc(6, 1)),
-        },
-    );
+        to: Loc(6, 4),
+        capture: Some(Loc(6, 1)),
+    });
 
     let test_piece = board.get(&Loc(6, 1));
     if let Some(piece) = test_piece {

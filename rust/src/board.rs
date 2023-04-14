@@ -6,7 +6,6 @@ use rustc_hash::{FxHashMap, FxHasher};
 use crate::attributes::main::{MoveData, PieceAttribute};
 use crate::hashmap;
 use crate::piece::{default_pieces, Color, ColorType, Piece, PieceType};
-use crate::util::Loc;
 
 #[derive(Debug, Clone)]
 pub(crate) struct PieceInfo {
@@ -15,17 +14,6 @@ pub(crate) struct PieceInfo {
     pub(crate) icon: char,
     pub(crate) value: i32,
     pub(crate) attributes: Vec<PieceAttribute>,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub(crate) struct MoveHistory {
-    pub(crate) piece: Piece,
-    pub(crate) from: Loc,
-}
-impl MoveHistory {
-    pub(crate) fn to(&self) -> &Loc {
-        &self.piece.loc
-    }
 }
 
 #[derive(Debug, Clone)]
@@ -42,9 +30,9 @@ pub(crate) struct Board {
     pub(crate) first_moves: [BitVec; 2],
     /// Whats squares are under attack by a piece of a given color
     pub(crate) attacks: [BitVec; 2],
-    pub(crate) half_moves: u16,
     pub(crate) turn: ColorType,
-    pub(crate) move_history: Vec<MoveHistory>,
+    pub(crate) move_history: Vec<MoveData>,
+    pub(crate) hashes: FxHashMap<u64, u8>,
 }
 impl Board {
     pub(crate) fn new(width: usize, height: usize) -> Self {
@@ -66,14 +54,55 @@ impl Board {
             general_locations: [bitvec.clone(), bitvec.clone()],
             first_moves: [bitvec.clone(), bitvec.clone()],
             attacks: [bitvec.clone(), bitvec],
-            half_moves: 0,
             turn: Color::WHITE,
             move_history: vec![],
+            hashes: hashmap! {},
         }
     }
 
-    pub(crate) fn move_piece(&mut self, piece: &Piece, move_data: &MoveData) {
-        self.raw_move(piece, move_data);
+    fn raw_raw_move(&mut self, from: usize, to: usize, piece: &Piece) {
+        let piece_locations = self.piece_locations[piece.color]
+            .get_mut(&piece.info_index)
+            .unwrap();
+        piece_locations.set(from, false);
+        piece_locations.set(to, true);
+        self.general_locations[piece.color].set(from, false);
+        self.general_locations[piece.color].set(to, true);
+    }
+
+    pub(crate) fn raw_move(&mut self, move_data: &MoveData) {
+        let from = self.loc_as_bit(&move_data.piece.loc);
+        let to = self.loc_as_bit(&move_data.to);
+
+        if let Some(capture) = &move_data.capture {
+            let capture_index = self.loc_as_bit(capture);
+            let piece = self.get(capture).unwrap();
+
+            self.general_locations[piece.color].set(capture_index, false);
+            self.piece_locations[piece.color]
+                .get_mut(&piece.info_index)
+                .unwrap()
+                .set(capture_index, false);
+        }
+
+        if let Some((from, to)) = &move_data.castle {
+            let piece = self.get(from).unwrap();
+
+            let from = self.loc_as_bit(from);
+            let to = self.loc_as_bit(to);
+
+            self.raw_raw_move(from, to, &piece);
+        }
+
+        self.raw_raw_move(from, to, &move_data.piece);
+    }
+
+    pub(crate) fn move_piece(&mut self, move_data: &MoveData) {
+        self.raw_move(move_data);
+        self.move_history.push(*move_data);
+
+        let hash_entry = self.hashes.entry(self.hash()).or_insert(0);
+        *hash_entry += 1;
     }
 
     pub(crate) fn hash(&self) -> u64 {
@@ -85,7 +114,7 @@ impl Board {
                 bitvec.hash(&mut hash);
             }
         }
-        self.half_moves.hash(&mut hash);
+        self.half_moves().hash(&mut hash);
         hash.finish()
     }
 }
