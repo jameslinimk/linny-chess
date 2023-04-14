@@ -2,7 +2,7 @@ use colored::Colorize;
 use ordinal::Ordinal;
 use serde::{Deserialize, Serialize};
 
-use crate::board::Board;
+use crate::board::{Board, PieceInfo};
 use crate::piece::{Color, ColorType, DefaultPiece, Piece};
 use crate::util::Loc;
 
@@ -17,7 +17,13 @@ pub(crate) struct CpgnMetadata {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub(crate) struct Cpgn {
     pub(crate) metadata: CpgnMetadata,
-    pub(crate) moves: Vec<String>,
+    pub(crate) moves: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub(crate) struct CombinedPiece {
+    pub(crate) piece: Piece,
+    pub(crate) info: PieceInfo,
 }
 
 impl Board {
@@ -194,28 +200,14 @@ impl Board {
         fen
     }
 
-    pub(crate) const TEST_CPGN: &str = "{
-        metadata: {
-            white: \"lin_as_white\",
-            black: \"lin_as_black\",
-            result: \"1-0\",
-            reason: \"checkmate\"
-        },
-        cpgn: [\"e2e4\", \"e7e5\", \"g1f3\". \"b8c6\"]
-    }";
     pub(crate) fn load_cpgn(&mut self, _cpgn: &str) {
         todo!()
     }
     pub(crate) fn to_cpgn(&self, metadata: CpgnMetadata) -> Cpgn {
-        let mut moves = Vec::with_capacity(self.half_moves());
-        for mov in self.move_history.iter() {
-            moves.push(format!(
-                "{}{}",
-                mov.piece.loc.as_notation(),
-                mov.to.as_notation()
-            ));
+        Cpgn {
+            metadata,
+            moves: serde_json::to_string(&self.move_history).unwrap(),
         }
-        Cpgn { metadata, moves }
     }
 
     pub(crate) fn insert(&mut self, piece: &Piece) {

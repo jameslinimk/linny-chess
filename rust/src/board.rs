@@ -2,17 +2,19 @@ use std::hash::{Hash, Hasher};
 
 use bit_vec::BitVec;
 use rustc_hash::{FxHashMap, FxHasher};
+use serde::{Deserialize, Serialize};
 
 use crate::attributes::main::{MoveData, PieceAttribute};
 use crate::hashmap;
 use crate::piece::{default_pieces, Color, ColorType, Piece, PieceType};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub(crate) struct PieceInfo {
     pub(crate) id: usize,
     pub(crate) display: String,
     pub(crate) icon: char,
     pub(crate) value: i32,
+    pub(crate) image_path: [String; 2],
     pub(crate) attributes: Vec<PieceAttribute>,
 }
 

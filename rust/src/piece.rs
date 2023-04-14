@@ -1,5 +1,6 @@
 use bit_vec::BitVec;
 use rustc_hash::FxHashMap;
+use serde::{Deserialize, Serialize};
 
 use crate::attributes::enpassant::EnPassant;
 use crate::attributes::jumping::Jumping;
@@ -54,7 +55,7 @@ impl DefaultPiece {
 }
 pub(crate) type PieceType = usize;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub(crate) struct Piece {
     pub(crate) color: ColorType,
     pub(crate) info_index: usize,
@@ -91,6 +92,7 @@ pub(crate) fn default_pieces() -> FxHashMap<PieceType, PieceInfo> {
             display: "Pawn".to_string(),
             icon: 'p',
             value: 1,
+            image_path: ["bp.png".to_string(), "wp.png".to_string()],
             attributes: vec![
                 Jumping {
                     black_directions: Some(vec![ILoc(0, 1)]),
@@ -127,6 +129,7 @@ pub(crate) fn default_pieces() -> FxHashMap<PieceType, PieceInfo> {
             display: "Bishop".to_string(),
             icon: 'b',
             value: 3,
+            image_path: ["bb.png".to_string(), "wb.png".to_string()],
             attributes: vec![
                 Sliding {
                     directions: vec![ILoc(1, 1), ILoc(-1, 1), ILoc(1, -1), ILoc(-1, -1)],
@@ -141,6 +144,7 @@ pub(crate) fn default_pieces() -> FxHashMap<PieceType, PieceInfo> {
             display: "Knight".to_string(),
             icon: 'n',
             value: 3,
+            image_path: ["bn.png".to_string(), "wn.png".to_string()],
             attributes: vec![
                 Jumping {
                     directions: vec![
@@ -165,6 +169,7 @@ pub(crate) fn default_pieces() -> FxHashMap<PieceType, PieceInfo> {
             display: "Rook".to_string(),
             icon: 'r',
             value: 5,
+            image_path: ["br.png".to_string(), "wr.png".to_string()],
             attributes: vec![
                 Sliding {
                     directions: vec![ILoc(1, 0), ILoc(-1, 0), ILoc(0, 1), ILoc(0, -1)],
@@ -179,6 +184,7 @@ pub(crate) fn default_pieces() -> FxHashMap<PieceType, PieceInfo> {
             display: "Queen".to_string(),
             icon: 'q',
             value: 9,
+            image_path: ["bq.png".to_string(), "wq.png".to_string()],
             attributes: vec![
                 Sliding {
                     directions: vec![
@@ -202,6 +208,7 @@ pub(crate) fn default_pieces() -> FxHashMap<PieceType, PieceInfo> {
             display: "King".to_string(),
             icon: 'k',
             value: 0,
+            image_path: ["bk.png".to_string(), "wk.png".to_string()],
             attributes: vec![
                 Jumping {
                     directions: vec![

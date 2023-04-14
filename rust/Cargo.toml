@@ -11,6 +11,7 @@ colored = "2.0.0"
 enum_dispatch = "0.3.11"
 ordinal = "0.3.2"
 rustc-hash = "1.1.0"
+schemars = "0.8.12"
 serde = { version = "1.0.160", features = ["derive"] }
 serde_json = "1.0.95"
 wasm-bindgen = "0.2.84"
@@ -21,7 +22,7 @@ crate-type = ["cdylib", "rlib"]
 path = "src/main.rs"
 
 [features]
-server = []
+bare = []
 
 [package.metadata.commands]
 "build:dev" = "wasm-pack build --target web --dev --out-dir ../frontend/pkg/ --features server"

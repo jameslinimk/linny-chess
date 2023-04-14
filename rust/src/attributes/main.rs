@@ -85,7 +85,7 @@ pub(crate) fn first_move_option() -> InfoOption {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub(crate) struct MoveData {
     pub(crate) to: Loc,
     pub(crate) capture: Option<Loc>,
