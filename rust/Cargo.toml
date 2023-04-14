@@ -1,5 +1,5 @@
 [package]
-name = "chessv2-rust"
+name = "linnychess"
 version = "0.1.0"
 edition = "2021"
 
@@ -23,4 +23,5 @@ path = "src/main.rs"
 server = []
 
 [package.metadata.commands]
-"build:dev" = "wasm-pack build --target web --dev --features server"
+"build:dev" = "wasm-pack build --target web --dev --out-dir ../frontend/pkg/ --features server"
+watch = "cargo watch -x 'cmd build:dev'"

@@ -2,7 +2,9 @@
 #![allow(dead_code)]
 
 use bit_vec::BitVec;
+use wasm_bindgen::prelude::wasm_bindgen;
 
+use crate::attributes::main::{PieceAttribute, PieceAttributeTrait};
 use crate::board::Board;
 use crate::util::Loc;
 
@@ -34,4 +36,45 @@ fn main() {
         let moves = bit_vec_to_list(&moves, &board);
         board.print(Some(&moves));
     }
+
+    println!("{}", board.hash());
+}
+
+static mut GAME: Option<Board> = None;
+pub(crate) fn game() -> &'static mut Board {
+    unsafe { GAME.as_mut().unwrap() }
+}
+
+#[wasm_bindgen]
+pub fn set_game(fen: Option<String>) {
+    unsafe {
+        GAME = Some(Board::new(8, 8));
+        if let Some(fen) = fen {
+            game().load_fen(&fen);
+        } else {
+            game().load_fen(Board::DEFAULT_FEN);
+        }
+    }
+}
+
+#[wasm_bindgen]
+pub fn game_exists() -> bool {
+    unsafe { GAME.is_some() }
+}
+
+#[wasm_bindgen]
+pub fn get_fen() -> Option<String> {
+    unsafe { GAME.as_ref().map(|game| game.to_fen()) }
+}
+
+#[wasm_bindgen]
+pub fn get_attribute_infos() -> String {
+    let defaults = PieceAttribute::default_iter();
+
+    let mut vec = Vec::with_capacity(defaults.len());
+    for attribute in defaults.iter() {
+        vec.push(attribute.info());
+    }
+
+    serde_json::to_string(&vec).unwrap()
 }

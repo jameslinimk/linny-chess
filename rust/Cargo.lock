@@ -38,20 +38,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
-name = "chessv2-rust"
-version = "0.1.0"
-dependencies = [
- "bit-vec",
- "colored",
- "enum_dispatch",
- "ordinal",
- "rustc-hash",
- "serde",
- "serde_json",
- "wasm-bindgen",
-]
-
-[[package]]
 name = "colored"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -100,6 +86,20 @@ name = "libc"
 version = "0.2.141"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3304a64d199bb964be99741b7a14d26972741915b3649639149b2479bb46f4b5"
+
+[[package]]
+name = "linnychess"
+version = "0.1.0"
+dependencies = [
+ "bit-vec",
+ "colored",
+ "enum_dispatch",
+ "ordinal",
+ "rustc-hash",
+ "serde",
+ "serde_json",
+ "wasm-bindgen",
+]
 
 [[package]]
 name = "log"

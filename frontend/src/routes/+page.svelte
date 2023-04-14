@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onMount } from "svelte"
-	import init, { get_attribute_infos } from "../../../rust/pkg/chessv2_rust.js"
+	import init, { get_fen, set_game } from "../../pkg"
 
 	onMount(async () => {
 		await init()
-		const infos = get_attribute_infos()
-		console.log(infos)
+		set_game()
+		console.log(get_fen())
 	})
 </script>
 

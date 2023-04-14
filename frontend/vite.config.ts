@@ -6,4 +6,9 @@ import { viteInjector } from "./socketInjector"
 
 export default defineConfig({
 	plugins: [sveltekit(), wasm(), topLevelAwait(), viteInjector],
+	server: {
+		fs: {
+			allow: ["./pkg"],
+		},
+	},
 })

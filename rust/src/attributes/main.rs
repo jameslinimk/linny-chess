@@ -102,7 +102,6 @@ pub(crate) enum PieceAttribute {
     Sliding,
     EnPassant,
 }
-#[cfg(feature = "server")]
 impl PieceAttribute {
     pub(crate) fn default_iter() -> [PieceAttribute; 3] {
         [
@@ -111,19 +110,6 @@ impl PieceAttribute {
             PieceAttribute::from(EnPassant::default()),
         ]
     }
-}
-
-#[cfg(feature = "server")]
-#[wasm_bindgen::prelude::wasm_bindgen]
-pub fn get_attribute_infos() -> String {
-    let defaults = PieceAttribute::default_iter();
-
-    let mut vec = Vec::with_capacity(defaults.len());
-    for attribute in defaults.iter() {
-        vec.push(serde_json::to_string(&attribute.info()).unwrap());
-    }
-
-    serde_json::to_string(&vec).unwrap()
 }
 
 pub(crate) fn dirs<'a>(

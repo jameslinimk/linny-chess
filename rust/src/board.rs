@@ -1,6 +1,9 @@
-use bit_vec::BitVec;
-use rustc_hash::FxHashMap;
+use std::hash::{Hash, Hasher};
 
+use bit_vec::BitVec;
+use rustc_hash::{FxHashMap, FxHasher};
+
+use crate::attributes::enpassant::EnPassant;
 use crate::attributes::main::PieceAttribute;
 use crate::hashmap;
 use crate::piece::{default_pieces, Color, ColorType, Piece, PieceType};
@@ -68,5 +71,28 @@ impl Board {
             turn: Color::WHITE,
             move_history: vec![],
         }
+    }
+
+    pub(crate) fn move_piece(&mut self, from: &Loc, to: &Loc, piece: &Piece) {
+        self.raw_move(from, to);
+        let info = piece.info(self);
+        let en_passant = info
+            .attributes
+            .iter()
+            .find(|&attr| matches!(attr, PieceAttribute::EnPassant(_)));
+        if let Some(en_passant) = en_passant {}
+    }
+
+    pub(crate) fn hash(&self) -> u64 {
+        let mut hash = FxHasher::default();
+        self.general_locations.hash(&mut hash);
+        for test in self.piece_locations.iter() {
+            for (piece_type, bitvec) in test.iter() {
+                piece_type.hash(&mut hash);
+                bitvec.hash(&mut hash);
+            }
+        }
+        self.half_moves.hash(&mut hash);
+        hash.finish()
     }
 }
