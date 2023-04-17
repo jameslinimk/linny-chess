@@ -26,6 +26,7 @@ impl Loc {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize, Default)]
+#[cfg_attr(not(feature = "bare"), derive(schemars::JsonSchema))]
 pub(crate) struct ILoc(pub(crate) i16, pub(crate) i16);
 impl ILoc {
     pub(crate) fn try_as_loc(&self) -> Option<Loc> {

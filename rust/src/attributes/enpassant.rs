@@ -1,4 +1,5 @@
 use bit_vec::BitVec;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 use crate::attributes::main::{
@@ -8,7 +9,7 @@ use crate::board::Board;
 use crate::piece::{Piece, PieceType};
 use crate::util::ILoc;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default, JsonSchema)]
 pub(crate) struct EnPassant {
     pub(crate) offsets: Vec<ILoc>,
     pub(crate) black_offsets: Option<Vec<ILoc>>,

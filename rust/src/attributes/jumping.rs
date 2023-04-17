@@ -10,6 +10,7 @@ use crate::piece::Piece;
 use crate::util::ILoc;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[cfg_attr(not(feature = "bare"), derive(schemars::JsonSchema))]
 pub(crate) struct Jumping {
     pub(crate) directions: Vec<ILoc>,
     pub(crate) black_directions: Option<Vec<ILoc>>,

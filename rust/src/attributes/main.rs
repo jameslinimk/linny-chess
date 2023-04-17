@@ -10,6 +10,7 @@ use crate::piece::{Color, ColorType, Piece, PieceType};
 use crate::util::{ILoc, Loc};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[cfg_attr(not(feature = "bare"), derive(schemars::JsonSchema))]
 pub(crate) enum OptionType {
     Bool,
     ILoc,
@@ -59,6 +60,7 @@ impl OptionValue {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(not(feature = "bare"), derive(schemars::JsonSchema))]
 pub(crate) struct InfoOption {
     pub(crate) name: &'static str,
     pub(crate) description: &'static str,
@@ -68,6 +70,7 @@ pub(crate) struct InfoOption {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(not(feature = "bare"), derive(schemars::JsonSchema))]
 pub(crate) struct PieceTraitInfo {
     pub(crate) name: &'static str,
     pub(crate) description: &'static str,
@@ -101,8 +104,24 @@ pub(crate) trait PieceAttributeTrait {
     fn set_option(&mut self, name: &str, value: &Option<OptionValue>);
 }
 
+#[test]
+fn schemas() {
+    let schema = schemars::schema_for!(PieceAttribute);
+    println!(
+        "PieceAttribute:\n{}\n",
+        serde_json::to_string(&schema).unwrap()
+    );
+
+    let schema = schemars::schema_for!(PieceTraitInfo);
+    println!(
+        "PieceTraitInfo:\n{}",
+        serde_json::to_string(&schema).unwrap()
+    );
+}
+
 #[enum_dispatch(PieceAttributeTrait)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(not(feature = "bare"), derive(schemars::JsonSchema))]
 pub(crate) enum PieceAttribute {
     Jumping,
     Sliding,

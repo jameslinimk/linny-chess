@@ -52,19 +52,17 @@ fn main() {
 }
 
 static mut GAME: Option<Board> = None;
-pub(crate) fn game() -> &'static mut Board {
-    unsafe { GAME.as_mut().unwrap() }
-}
 
 #[wasm_bindgen]
 /// Sets the global game variable to a new board with the given fen, or the default fen if None is given.
 pub fn set_game(fen: Option<String>) {
     unsafe {
         GAME = Some(Board::new(8, 8));
+        let game = GAME.as_mut().unwrap();
         if let Some(fen) = fen {
-            game().load_fen(&fen);
+            game.load_fen(&fen);
         } else {
-            game().load_fen(Board::DEFAULT_FEN);
+            game.load_fen(Board::DEFAULT_FEN);
         }
     }
 }
@@ -79,6 +77,22 @@ pub fn game_exists() -> bool {
 /// Returns the current fen of the game.
 pub fn get_fen() -> Option<String> {
     unsafe { GAME.as_ref().map(|game| game.to_fen()) }
+}
+
+#[wasm_bindgen]
+pub fn add_piece(piece: String) -> Option<usize> {
+    unsafe {
+        if let Some(game) = &mut GAME {
+            let parsed = serde_json::from_str(&piece);
+            if let Ok(piece) = parsed {
+                Some(game.load_piece(piece))
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
 }
 
 #[wasm_bindgen]

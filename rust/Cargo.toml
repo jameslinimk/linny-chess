@@ -25,5 +25,6 @@ path = "src/main.rs"
 bare = []
 
 [package.metadata.commands]
-"build:dev" = "wasm-pack build --target web --dev --out-dir ../frontend/pkg/ --features server"
+"build:dev" = "wasm-pack build --target web --dev --out-dir ../frontend/pkg/"
+"build:prod" = "wasm-pack build --target web --release --out-dir ../frontend/pkg/ --features bare"
 watch = "cargo watch -x 'cmd build:dev'"

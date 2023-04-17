@@ -9,6 +9,7 @@ use crate::hashmap;
 use crate::piece::{default_pieces, Color, ColorType, Piece, PieceType};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[cfg_attr(not(feature = "bare"), derive(schemars::JsonSchema))]
 pub(crate) struct PieceInfo {
     pub(crate) id: usize,
     pub(crate) display: String,
@@ -16,6 +17,12 @@ pub(crate) struct PieceInfo {
     pub(crate) value: i32,
     pub(crate) image_path: [String; 2],
     pub(crate) attributes: Vec<PieceAttribute>,
+}
+
+#[test]
+fn schemas() {
+    let schema = schemars::schema_for!(PieceInfo);
+    println!("PieceInfo:\n{}\n", serde_json::to_string(&schema).unwrap());
 }
 
 #[derive(Debug, Clone)]

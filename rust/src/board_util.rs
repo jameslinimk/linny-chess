@@ -2,6 +2,7 @@ use colored::Colorize;
 use ordinal::Ordinal;
 use serde::{Deserialize, Serialize};
 
+use crate::attributes::main::PieceAttribute;
 use crate::board::{Board, PieceInfo};
 use crate::piece::{Color, ColorType, DefaultPiece, Piece};
 use crate::util::Loc;
@@ -217,5 +218,11 @@ impl Board {
             .get_mut(&piece.info_index)
             .unwrap()
             .set(index, true);
+    }
+
+    pub(crate) fn load_piece(&mut self, info: PieceInfo) -> usize {
+        let index = self.pieces.len() + 1;
+        self.pieces.insert(index, info);
+        index
     }
 }
